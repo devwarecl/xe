@@ -11,7 +11,6 @@ namespace XE {
 
 namespace XE {
     class Texture2DArray : public Texture {
-
     public:
         virtual TextureType getType() const override;
 

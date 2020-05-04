@@ -22,7 +22,7 @@ namespace XE {
         explicit SandboxApp(const std::vector<std::string> &args) {}
         virtual ~SandboxApp() {}
 
-        virtual void Initialize() override {
+        virtual void initialize() override {
             std::cout << "Initializing Engine ..." << std::endl;
 
             m_window = WindowGLFW::create (
@@ -36,12 +36,12 @@ namespace XE {
             m_inputManager = m_window->getInputManager();
 
             std::cout << "Loading assets ..." << std::endl;
-            m_streamSource = std::unique_ptr<FileStreamSource>();
+            m_streamSource = std::make_unique<FileStreamSource>("./");
             this->InitializeShaders();
             this->InitializeGeometry();
         }
 
-        virtual void Update(const float seconds) override {
+        virtual void update(const float seconds) override {
             const Vector2i windowSize = m_window->getSize();
             m_graphicsDevice->setViewport({{0, 0}, windowSize});
 
@@ -90,7 +90,7 @@ namespace XE {
             }
         }
 
-        void RenderMatrices() {
+        void renderMatrices() {
             const UniformMatrix matrixLayout = { "m_mvp", DataType::Float32, 4, 4, 1 };
 
             const Matrix4f modelViewProj = transpose (
@@ -102,7 +102,7 @@ namespace XE {
             m_graphicsDevice->applyUniform(&matrixLayout, 1, (const std::byte*)&modelViewProj);
         }
 
-        std::unique_ptr<Texture2D> CreateColorTexture(const int width, const int height, const Vector4f &color) {
+        std::unique_ptr<Texture2D> createColorTexture(const int width, const int height, const Vector4f &color) {
             const auto format = PixelFormat::R8G8B8A8;
             const auto size = Vector2i{width, height};
 
@@ -120,8 +120,9 @@ namespace XE {
             return m_graphicsDevice->createTexture2D(format, size, sourceFormat, sourceDataType, pixels.data());
         }
 
-        std::unique_ptr<Texture2D> CreateFileTexture(const std::string &filePath) {
-            std::cout << "SandboxApp::CreateFileTexture: Loading texture from file " << filePath << " ..." << std::endl;
+
+        std::unique_ptr<Texture2D> createFileTexture(const std::string &filePath) {
+            std::cout << "SandboxApp::createFileTexture: Loading texture from file " << filePath << " ..." << std::endl;
             auto stream = m_streamSource->open(filePath);
 
             auto imagePtr = m_imageLoaderPNG.load(stream.get());
@@ -135,11 +136,11 @@ namespace XE {
             );
         }
 
-        virtual void Render() override {
+        virtual void render() override {
             m_graphicsDevice->beginFrame(ClearFlags::All, {0.2f, 0.2f, 0.2f, 1.0f}, 0.0f, 0);
             m_graphicsDevice->setProgram(m_program.get());
 
-            this->RenderMatrices();
+            this->renderMatrices();
 
             Uniform textureUniform = {
                 "texture0", DataType::Int32, 1, 1
@@ -157,7 +158,7 @@ namespace XE {
             m_graphicsDevice->endFrame();
         }
 
-        virtual bool ShouldClose() const override {
+        virtual bool shouldClose() const override {
             return m_shouldClose;
         }
 
@@ -174,12 +175,13 @@ namespace XE {
             m_program = m_graphicsDevice->createProgram(programDescriptor);
         }
 
+
         std::string getShaderSource(const std::string &path) const {
             std::fstream fs;
             fs.open(path.c_str(), std::ios_base::in);
 
             if (!fs.is_open()) {
-                throw std::runtime_error("Shared source file wasn't found");
+                throw std::runtime_error("Shader source file wasn't found: " + path);
             }
 
             std::string content;
@@ -278,7 +280,7 @@ namespace XE {
             m_subset = m_graphicsDevice->createSubset(subsetDescriptor, std::move(buffers), bufferMapping, std::move(indexBuffer));
 
             // m_texture = this->CreateColorTexture(256, 256, {1.0f, 0.0f, 0.0f, 1.0f});
-            m_texture = this->CreateFileTexture("media/materials/Tiles_Azulejos_004_SD/Tiles_Azulejos_004_COLOR.png");
+            m_texture = this->createFileTexture("media/materials/Tiles_Azulejos_004_SD/Tiles_Azulejos_004_COLOR.png");
 
             m_material = std::make_unique<Material>();
             m_material->layers[0].texture = m_texture.get();

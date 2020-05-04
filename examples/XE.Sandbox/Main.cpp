@@ -22,18 +22,18 @@ int main(int argc, char **argv) {
         std::vector<std::string> args = ConvertArgs(argc, argv);
         auto app = XE::Application::create(args);
 
-        app->Initialize();
+        app->initialize();
 
         int lastTime = XE::Timer::getTick();
 
-        while (!app->ShouldClose()) {
+        while (!app->shouldClose()) {
             int current = XE::Timer::getTick() - lastTime;
             float seconds = static_cast<float>(current) / 1000.0f;
 
             lastTime = XE::Timer::getTick();
 
-            app->Update(seconds);
-            app->Render();
+            app->update(seconds);
+            app->render();
         }
     } catch (const std::exception &exp) {
         std::cout << exp.what() << std::endl;

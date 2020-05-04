@@ -11,11 +11,11 @@ namespace XE {
     public:
         virtual ~Application() {}
 
-        virtual void Initialize() = 0;
-        virtual void Update(const float seconds) = 0;
-        virtual void Render() = 0;
+        virtual void initialize() = 0;
+        virtual void update(const float seconds) = 0;
+        virtual void render() = 0;
 
-        virtual bool ShouldClose() const = 0;
+        virtual bool shouldClose() const = 0;
 
     public:
         static std::unique_ptr<Application> create(const std::vector<std::string> &args);
