@@ -36,6 +36,11 @@ add_subdirectory ("src/XE.Core")
 # PLUGINS SECTION
 #========================================================
 
+# assimp
+set (ASSIMP_BUILD_TESTS CACHE BOOL OFF)
+set (BUILD_SHARED_LIBS  CACHE BOOL OFF)
+add_subdirectory("dep/assimp")
+
 # include LodePNG image
 if (XE_PLUGIN_PNG)
     include_directories("dep/lodepng")
